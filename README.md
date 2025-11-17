@@ -62,6 +62,6 @@ Si aparece en la tabla, significa que PostGIS ya está disponible en esta instan
 
 ### 6. Activar PostGIS en la base de datos específica
 ```sql
-CREATE EXTENSION postgis;
+CREATE EXTENSION postgis CASCADE;
 ```
 Con esto queda lista la preparación del entorno.
