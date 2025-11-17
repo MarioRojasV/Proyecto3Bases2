@@ -4,7 +4,7 @@ INSERT INTO edificio (nombre, descripcion, geom) VALUES
 ),
 ('Laboratorios de Computación', 'Edificio con laboratorios y miniauditorio', 
  ST_SetSRID(ST_MakePoint(-84.51039, 10.36274), 4326)
-)
+),
 ('Ecuela de Ciencias Naturales y Exactas', 'Edificio donde se ubican las aulas de matemáticas y otras', 
  ST_SetSRID(ST_MakePoint(-84.51000, 10.36119), 4326)
 ),
@@ -16,7 +16,8 @@ INSERT INTO edificio (nombre, descripcion, geom) VALUES
 ),
 ('Gimnasio', 'Gimnasio del TEC', 
  ST_SetSRID(ST_MakePoint(-84.51080, 10.36220), 4326)
-),
+);
+INSERT INTO edificio (nombre, geom) VALUES
 ('Unidad de Arte y Cultura', 
  ST_SetSRID(ST_MakePoint(-84.51152, 10.36167), 4326)
 );
@@ -246,7 +247,7 @@ INSERT INTO horario (id_curso, id_profesor, id_aula, dia, hora_inicio, hora_fin)
 (2, 1, 4, 'Martes',    '07:55', '11:30'),
 (2, 1, 10, 'Lunes',    '12:30', '16:05'),
 (3, 2, 1, 'Miércoles', '12:30', '16:05'),
-(3, 2, 8, 'Martes',    '12:30', '16:05')
+(3, 2, 8, 'Martes',    '12:30', '16:05'),
 (4, 4, 5, 'Miércoles', '07:55', '11:30'),
 (4, 4, 3, 'Lunes',     '16:00', '17:50'),
 (5, 3, 5, 'Jueves',    '16:05', '17:50'),
@@ -306,7 +307,7 @@ VALUES
 (5, 11), -- Mate General
 (5, 12),
 (5, 14), -- Cálculo
-(5, 15);
+(5, 15),
 
 
 -- ***** Produ *****
@@ -348,4 +349,4 @@ VALUES
 -- Fernando Méndez
 (10, 11),
 (10, 14),
-(10, 16),
+(10, 16);
