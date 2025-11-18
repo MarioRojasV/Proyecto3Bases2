@@ -1,0 +1,77 @@
+@"
+version: '3.8'
+
+services:
+  postgres-primario:
+    image: postgis/postgis:16-3.4
+    container_name: tec-gis-primario
+    environment:
+      POSTGRES_DB: sistema_db_geografico_tec
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin123
+      POSTGRES_INITDB_ARGS: "-c wal_level=replica -c max_wal_senders=3 -c wal_keep_size=1GB -c hot_standby=on"
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data_primario:/var/lib/postgresql/data
+      - ./sql:/docker-entrypoint-initdb.d
+      - ./configs/postgresql-primario.conf:/etc/postgresql/postgresql.conf
+      - ./backups:/backups
+    command:
+      - "postgres"
+      - "-c"
+      - "config_file=/etc/postgresql/postgresql.conf"
+    networks:
+      - gis-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin -d sistema_db_geografico_tec"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  postgres-replica:
+    image: postgis/postgis:16-3.4
+    container_name: tec-gis-replica
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin123
+      PGUSER: replicator
+      PGPASSWORD: replicator123
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data_replica:/var/lib/postgresql/data
+      - ./configs/postgresql-replica.conf:/etc/postgresql/postgresql.conf
+      - ./backups:/backups
+    command:
+      - "bash"
+      - "-c"
+      - |
+        until pg_basebackup -h postgres-primario -D /var/lib/postgresql/data -U replicator -v -P -W; do
+          echo "Esperando al primario..."
+          sleep 5
+        done
+        echo "standby_mode = 'on'" >> /var/lib/postgresql/data/recovery.conf
+        echo "primary_conninfo = 'host=postgres-primario port=5432 user=replicator password=replicator123'" >> /var/lib/postgresql/data/recovery.conf
+        exec postgres -c config_file=/etc/postgresql/postgresql.conf
+    depends_on:
+      postgres-primario:
+        condition: service_healthy
+    networks:
+      - gis-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data_primario:
+    driver: local
+  postgres_data_replica:
+    driver: local
+
+networks:
+  gis-network:
+    driver: bridge
+"@ | Out-File -FilePath "docker-compose.yml" -Encoding UTF8
