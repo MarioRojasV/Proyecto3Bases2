@@ -1,6 +1,3 @@
-@"
-version: '3.8'
-
 services:
   postgres-primario:
     image: postgis/postgis:16-3.4
@@ -15,12 +12,27 @@ services:
     volumes:
       - postgres_data_primario:/var/lib/postgresql/data
       - ./sql:/docker-entrypoint-initdb.d
-      - ./configs/postgresql-primario.conf:/etc/postgresql/postgresql.conf
       - ./backups:/backups
     command:
-      - "postgres"
+      - "bash"
       - "-c"
-      - "config_file=/etc/postgresql/postgresql.conf"
+      - |
+        docker-entrypoint.sh postgres &
+        POSTGRES_PID=$$!
+
+        # Esperar a que PostgreSQL esté listo
+        until pg_isready -U admin -d sistema_db_geografico_tec 2>/dev/null; do
+          sleep 1
+        done
+
+        # Agregar configuración de replicación
+        echo "host    replication     replicator      172.19.0.0/24           md5" >> /var/lib/postgresql/data/pg_hba.conf
+        echo "host    all             all             172.19.0.0/24           md5" >> /var/lib/postgresql/data/pg_hba.conf
+
+        # Recargar configuración
+        psql -U admin -d sistema_db_geografico_tec -c "SELECT pg_reload_conf();" 2>/dev/null || true
+
+        wait
     networks:
       - gis-network
     healthcheck:
@@ -41,7 +53,6 @@ services:
       - "5433:5432"
     volumes:
       - postgres_data_replica:/var/lib/postgresql/data
-      - ./configs/postgresql-replica.conf:/etc/postgresql/postgresql.conf
       - ./backups:/backups
     command:
       - "bash"
@@ -51,9 +62,11 @@ services:
           echo "Esperando al primario..."
           sleep 5
         done
-        echo "standby_mode = 'on'" >> /var/lib/postgresql/data/recovery.conf
-        echo "primary_conninfo = 'host=postgres-primario port=5432 user=replicator password=replicator123'" >> /var/lib/postgresql/data/recovery.conf
-        exec postgres -c config_file=/etc/postgresql/postgresql.conf
+        echo "host    replication     replicator      172.19.0.0/24           md5" >> /var/lib/postgresql/data/pg_hba.conf
+        echo "host    all             all             172.19.0.0/24           md5" >> /var/lib/postgresql/data/pg_hba.conf
+        touch /var/lib/postgresql/data/standby.signal
+        echo "primary_conninfo = 'host=postgres-primario port=5432 user=replicator password=replicator123'" >> /var/lib/postgresql/data/postgresql.auto.conf
+        exec docker-entrypoint.sh postgres
     depends_on:
       postgres-primario:
         condition: service_healthy
@@ -74,4 +87,3 @@ volumes:
 networks:
   gis-network:
     driver: bridge
-"@ | Out-File -FilePath "docker-compose.yml" -Encoding UTF8

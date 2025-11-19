@@ -1,7 +1,7 @@
 -- ********************************************************
 -- CREAR DASE DE DATOS
 -- ********************************************************
-CREATE DATABASE sistema_db_geografico_tec;
+-- CREATE DATABASE IF NOT EXISTS sistema_db_geografico_tec;
 
 
 

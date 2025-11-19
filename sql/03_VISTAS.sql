@@ -1,4 +1,4 @@
-CREATE OR REPLACE VIEW vista_horarios_completos AS
+﻿CREATE OR REPLACE VIEW vista_horarios_completos AS
 SELECT
     h.id_horario,
     c.nombre AS curso,
@@ -14,8 +14,6 @@ JOIN curso c ON h.id_curso = c.id_curso
 JOIN profesor p ON h.id_profesor = p.id_profesor
 JOIN aula a ON h.id_aula = a.id_aula
 JOIN edificio e ON a.id_edificio = e.id_edificio;
-
-
 
 CREATE OR REPLACE VIEW vista_estudiantes_horarios AS
 SELECT
@@ -34,9 +32,3 @@ JOIN horario h ON m.id_horario = h.id_horario
 JOIN curso c ON h.id_curso = c.id_curso
 JOIN aula a ON h.id_aula = a.id_aula
 JOIN edificio e ON a.id_edificio = e.id_edificio;
-
-
-
-SELECT * FROM public.vista_horarios_completos
-
-SELECT * FROM public.vista_estudiantes_horarios
