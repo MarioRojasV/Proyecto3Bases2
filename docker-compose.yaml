@@ -13,6 +13,8 @@ services:
       - postgres_data_primario:/var/lib/postgresql/data
       - ./sql:/docker-entrypoint-initdb.d
       - ./backups:/backups
+      - ./scripts:/scripts
+      - ./logs:/logs
     command:
       - "bash"
       - "-c"
@@ -54,6 +56,8 @@ services:
     volumes:
       - postgres_data_replica:/var/lib/postgresql/data
       - ./backups:/backups
+      - ./scripts:/scripts
+      - ./logs:/logs
     command:
       - "bash"
       - "-c"

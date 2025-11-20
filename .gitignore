@@ -1,1 +1,16 @@
+# Credenciales sensibles
 .env
+
+# Archivos generados por backups
+backups/*.sql.gz
+backups/logs/*.log
+backups/logs/*.txt
+backups/archive/*.backup
+backups/archive/*.wal
+
+# Logs de verificación
+logs/*.log
+logs/*.txt
+
+# Carpetas vacías (mantener solo .gitkeep)
+configs/
