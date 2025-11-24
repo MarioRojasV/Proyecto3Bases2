@@ -14,3 +14,7 @@ logs/*.txt
 
 # Carpetas vacías (mantener solo .gitkeep)
 configs/
+
+# Scripts de desarrollo/limpieza local
+limpiar_todo_windows.ps1
+limpiar_todo.sh
